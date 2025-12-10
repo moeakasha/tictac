@@ -12,9 +12,10 @@ const __dirname = dirname(__filename);
 const app = express();
 const httpServer = createServer(app);
 
-const isProduction = process.env.NODE_ENV === 'production';
+// Detect production mode
 const distPath = join(__dirname, '../dist');
 const rootPath = join(__dirname, '..');
+const isProduction = process.env.NODE_ENV === 'production';
 
 const io = new Server(httpServer, {
   cors: {
@@ -25,14 +26,20 @@ const io = new Server(httpServer, {
 
 // Setup static file serving
 async function setupServer() {
-  if (isProduction && existsSync(distPath)) {
+  // Check if dist folder exists (production build)
+  const hasDistFolder = existsSync(distPath);
+  
+  if ((isProduction || hasDistFolder) && hasDistFolder) {
     // In production, serve static files from dist
     app.use(express.static(distPath));
     
-    // For all routes, serve index.html (SPA fallback)
-    app.get('*', (req, res) => {
+    // For all non-API routes, serve index.html (SPA fallback)
+    // Socket.io uses WebSockets, so it won't be affected by this route
+    // Use app.use for catch-all in Express 5
+    app.use((req, res) => {
       res.sendFile(join(distPath, 'index.html'));
     });
+    console.log('Production mode: Serving static files from', distPath);
   } else {
     // In development, use Vite middleware
     const viteServer = await createViteServer({
@@ -40,6 +47,7 @@ async function setupServer() {
       server: { middlewareMode: true },
     });
     app.use(viteServer.middlewares);
+    console.log('Development mode: Using Vite dev server');
   }
 }
 
@@ -240,12 +248,15 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT || 3001;
+const HOST = process.env.HOST || '0.0.0.0';
 
 // Start the server
 setupServer().then(() => {
-  httpServer.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-    if (!isProduction) {
+  httpServer.listen(PORT, HOST, () => {
+    console.log(`Server running on http://${HOST}:${PORT}`);
+    if (isProduction) {
+      console.log(`Production mode: Serving static files from dist/`);
+    } else {
       console.log(`Development mode: Vite dev server integrated`);
     }
   });
