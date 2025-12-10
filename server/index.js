@@ -28,15 +28,13 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Serve static files from React app in production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../client/build')));
+// Serve static files from root (index.html)
+app.use(express.static(path.join(__dirname, '..')));
   
-  // Handle React routing, return all requests to React app
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/build/index.html'));
-  });
-}
+// Handle all routes, return index.html for SPA
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../index.html'));
+});
 
 // Store rooms and game states
 const rooms = new Map();

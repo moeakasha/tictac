@@ -20,39 +20,24 @@ A real-time multiplayer tic-tac-toe game built with React and Socket.io.
 
 ### Installation
 
-1. Install all dependencies (both root and client):
-```bash
-npm run install-all
-```
-
-Or manually:
+1. Install server dependencies:
 ```bash
 npm install
-cd client
-npm install
-cd ..
 ```
 
 ### Running the Application
 
-Start both the server and client simultaneously:
+Start the server:
 ```bash
-npm run dev
+npm start
 ```
 
-Or run them separately:
-
-**Terminal 1 - Server:**
+Or for development with auto-reload:
 ```bash
 npm run server
 ```
 
-**Terminal 2 - Client:**
-```bash
-npm run client
-```
-
-The server will run on `http://localhost:5000` and the client on `http://localhost:3000`.
+The server will run on `http://localhost:5000` and serve the client application.
 
 ## How to Play
 
@@ -76,28 +61,16 @@ The server will run on `http://localhost:5000` and the client on `http://localho
 
 ```
 tictac/
+├── index.html            # Single HTML file with inline CSS and JS
 ├── server/
 │   └── index.js          # Express server with Socket.io
-├── client/
-│   ├── public/
-│   │   └── index.html
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── GameBoard.js
-│   │   │   ├── GameStatus.js
-│   │   │   └── RoomSetup.js
-│   │   ├── App.js
-│   │   ├── App.css
-│   │   ├── index.js
-│   │   └── index.css
-│   └── package.json
 ├── package.json
 └── README.md
 ```
 
 ## Technologies Used
 
-- **Frontend:** React, Socket.io-client
+- **Frontend:** Vanilla JavaScript, Socket.io-client
 - **Backend:** Node.js, Express, Socket.io
 - **Styling:** CSS3 with modern design
 

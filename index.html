@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="description" content="Multiplayer Tic-Tac-Toe Game" />
+  <title>Tic-Tac-Toe Multiplayer</title>
+  <style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.app {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.game-container {
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 500px;
+  width: 100%;
+}
+
+.game-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.game-header h1 {
+  color: #667eea;
+  margin-bottom: 15px;
+  font-size: 2.5em;
+}
+
+.room-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f5f5f5;
+  padding: 10px 15px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+}
+
+.room-info p {
+  margin: 0;
+  color: #333;
+}
+
+.room-info strong {
+  color: #667eea;
+  font-family: monospace;
+  font-size: 1.1em;
+}
+
+.leave-btn {
+  background: #ff6b6b;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: background 0.3s;
+}
+
+.leave-btn:hover {
+  background: #ff5252;
+}
+
+.error-message {
+  background: #ffebee;
+  color: #c62828;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  text-align: center;
+  border-left: 4px solid #c62828;
+}
+
+.reset-btn {
+  width: 100%;
+  background: #667eea;
+  color: white;
+  border: none;
+  padding: 15px;
+  border-radius: 10px;
+  font-size: 1.1em;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: background 0.3s;
+}
+
+.reset-btn:hover {
+  background: #5568d3;
+}
+
+.connection-status {
+  background: #fff3cd;
+  color: #856404;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  text-align: center;
+  border-left: 4px solid #ffc107;
+}
+
+.room-setup {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.setup-container {
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 400px;
+  width: 100%;
+}
+
+.setup-container h1 {
+  text-align: center;
+  color: #667eea;
+  margin-bottom: 30px;
+  font-size: 2.2em;
+}
+
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.tab {
+  flex: 1;
+  padding: 12px;
+  border: 2px solid #e0e0e0;
+  background: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1em;
+  font-weight: 500;
+  color: #666;
+  transition: all 0.3s;
+}
+
+.tab:hover {
+  border-color: #667eea;
+  color: #667eea;
+}
+
+.tab.active {
+  background: #667eea;
+  color: white;
+  border-color: #667eea;
+}
+
+.setup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-weight: 500;
+  color: #333;
+  font-size: 0.95em;
+}
+
+.form-group input {
+  padding: 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1em;
+  transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.submit-btn {
+  background: #667eea;
+  color: white;
+  border: none;
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 1.1em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+  margin-top: 10px;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background: #5568d3;
+}
+
+.submit-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.game-board {
+  margin: 20px 0;
+}
+
+.board-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 10px;
+  background: #333;
+  padding: 10px;
+  border-radius: 10px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.cell {
+  aspect-ratio: 1;
+  background: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 3em;
+  font-weight: bold;
+  cursor: default;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #333;
+}
+
+.cell.clickable {
+  cursor: pointer;
+  background: #f0f0f0;
+}
+
+.cell.clickable:hover {
+  background: #e0e0e0;
+  transform: scale(1.05);
+}
+
+.cell.clickable:active {
+  transform: scale(0.95);
+}
+
+.cell-x {
+  color: #667eea;
+}
+
+.cell-o {
+  color: #764ba2;
+}
+
+.cell:disabled {
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+.game-status {
+  margin-bottom: 20px;
+}
+
+.status-message {
+  text-align: center;
+  font-size: 1.3em;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 15px;
+  padding: 15px;
+  background: #f5f5f5;
+  border-radius: 10px;
+}
+
+.players-info {
+  display: flex;
+  justify-content: space-around;
+  gap: 10px;
+}
+
+.player-info {
+  flex: 1;
+  padding: 12px;
+  background: #f5f5f5;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s;
+}
+
+.player-info.current-player {
+  background: #e3f2fd;
+  border: 2px solid #667eea;
+}
+
+.player-info.active-turn {
+  background: #fff3e0;
+  border: 2px solid #ff9800;
+  font-weight: bold;
+}
+
+.player-symbol {
+  font-size: 1.5em;
+  font-weight: bold;
+  min-width: 30px;
+  text-align: center;
+}
+
+.player-name {
+  flex: 1;
+  font-size: 0.95em;
+}
+
+.turn-indicator {
+  font-size: 0.85em;
+  color: #ff9800;
+  font-weight: bold;
+}
+  </style>
+</head>
+<body>
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <div id="app"></div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+// Tic-Tac-Toe Multiplayer - Vanilla JavaScript
+(function() {
+  'use strict';
+
+  // State management
+  const state = {
+    roomId: '',
+    playerName: '',
+    playerSymbol: null,
+    gameState: null,
+    error: '',
+    isInRoom: false,
+    isConnected: false,
+    socket: null,
+    activeTab: 'create'
+  };
+
+  // Initialize socket connection
+  function initSocket() {
+    const socketUrl = window.location.origin;
+    state.socket = io(socketUrl, {
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionAttempts: 5
+    });
+
+    state.socket.on('connect', () => {
+      console.log('Connected to server');
+      state.isConnected = true;
+      state.error = '';
+      updateUI();
+    });
+
+    state.socket.on('disconnect', () => {
+      console.log('Disconnected from server');
+      state.isConnected = false;
+      updateUI();
+    });
+
+    state.socket.on('connect_error', (err) => {
+      console.error('Connection error:', err);
+      state.error = 'Unable to connect to server. Make sure the server is running.';
+      updateUI();
+    });
+
+    state.socket.on('roomCreated', (data) => {
+      console.log('Room created:', data);
+      state.roomId = data.roomId;
+      state.playerSymbol = data.playerSymbol;
+      state.isInRoom = true;
+      state.error = '';
+      updateUI();
+    });
+
+    state.socket.on('roomJoined', (data) => {
+      console.log('Room joined:', data);
+      state.roomId = data.roomId;
+      state.playerSymbol = data.playerSymbol;
+      state.isInRoom = true;
+      state.error = '';
+      updateUI();
+    });
+
+    state.socket.on('roomUpdate', (data) => {
+      console.log('Room update:', data);
+      state.gameState = data;
+      updateUI();
+    });
+
+    state.socket.on('gameUpdate', (data) => {
+      console.log('Game update:', data);
+      state.gameState = data;
+      updateUI();
+    });
+
+    state.socket.on('error', (data) => {
+      console.error('Error:', data);
+      state.error = data.message;
+      updateUI();
+    });
+
+    state.socket.on('playerLeft', (data) => {
+      state.error = data.message;
+      updateUI();
+    });
+  }
+
+  // UI Update functions
+  function updateUI() {
+    const app = document.getElementById('app');
+    if (!app) return;
+
+    if (!state.isInRoom) {
+      app.innerHTML = renderRoomSetup();
+      attachRoomSetupListeners();
+    } else {
+      app.innerHTML = renderGame();
+      attachGameListeners();
+    }
+  }
+
+  // Render Room Setup
+  function renderRoomSetup() {
+    return `
+      <div class="app">
+        ${!state.isConnected ? `
+          <div class="connection-status">
+            Connecting to server... Make sure the server is running.
+          </div>
+        ` : ''}
+        <div class="room-setup">
+          <div class="setup-container">
+            <h1>Tic-Tac-Toe Multiplayer</h1>
+            
+            <div class="tabs">
+              <button class="tab ${state.activeTab === 'create' ? 'active' : ''}" data-tab="create">
+                Create Room
+              </button>
+              <button class="tab ${state.activeTab === 'join' ? 'active' : ''}" data-tab="join">
+                Join Room
+              </button>
+            </div>
+
+            ${state.error ? `<div class="error-message">${state.error}</div>` : ''}
+
+            ${state.activeTab === 'create' ? `
+              <form id="create-form" class="setup-form">
+                <div class="form-group">
+                  <label for="create-name">Your Name</label>
+                  <input
+                    id="create-name"
+                    type="text"
+                    placeholder="Enter your name"
+                    required
+                  />
+                </div>
+                <button type="submit" class="submit-btn" ${!state.isConnected ? 'disabled' : ''}>
+                  ${state.isConnected ? 'Create Room' : 'Connecting...'}
+                </button>
+              </form>
+            ` : `
+              <form id="join-form" class="setup-form">
+                <div class="form-group">
+                  <label for="join-name">Your Name</label>
+                  <input
+                    id="join-name"
+                    type="text"
+                    placeholder="Enter your name"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="room-id">Room ID</label>
+                  <input
+                    id="room-id"
+                    type="text"
+                    placeholder="Enter room ID"
+                    required
+                  />
+                </div>
+                <button type="submit" class="submit-btn" ${!state.isConnected ? 'disabled' : ''}>
+                  ${state.isConnected ? 'Join Room' : 'Connecting...'}
+                </button>
+              </form>
+            `}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Render Game
+  function renderGame() {
+    if (!state.gameState) {
+      return '<div class="app"><div class="game-container">Loading...</div></div>';
+    }
+
+    return `
+      <div class="app">
+        <div class="game-container">
+          <div class="game-header">
+            <h1>Tic-Tac-Toe</h1>
+            <div class="room-info">
+              <p>Room ID: <strong>${state.roomId}</strong></p>
+              <button class="leave-btn" id="leave-btn">Leave Room</button>
+            </div>
+          </div>
+
+          ${state.error ? `<div class="error-message">${state.error}</div>` : ''}
+
+          ${renderGameStatus()}
+          ${renderGameBoard()}
+          ${state.gameState.status === 'finished' ? `
+            <button class="reset-btn" id="reset-btn">Play Again</button>
+          ` : ''}
+        </div>
+      </div>
+    `;
+  }
+
+  // Render Game Status
+  function renderGameStatus() {
+    if (!state.gameState) return '';
+
+    const getStatusMessage = () => {
+      if (state.gameState.status === 'waiting') {
+        return 'Waiting for another player to join...';
+      }
+
+      if (state.gameState.status === 'finished') {
+        if (state.gameState.winner === 'draw') {
+          return "It's a draw!";
+        }
+        if (state.gameState.winner === state.playerSymbol) {
+          return `🎉 You won, ${state.playerName}!`;
+        }
+        return 'You lost. Better luck next time!';
+      }
+
+      if (state.gameState.currentPlayer === state.playerSymbol) {
+        return `Your turn, ${state.playerName}! (${state.playerSymbol})`;
+      }
+
+      return "Waiting for opponent's move...";
+    };
+
+    const getPlayersInfo = () => {
+      if (!state.gameState.players || state.gameState.players.length === 0) {
+        return '';
+      }
+
+      return state.gameState.players.map(player => `
+        <div class="player-info ${player.symbol === state.playerSymbol ? 'current-player' : ''} ${
+          state.gameState.currentPlayer === player.symbol ? 'active-turn' : ''
+        }">
+          <span class="player-symbol">${player.symbol}</span>
+          <span class="player-name">${player.name}</span>
+          ${state.gameState.currentPlayer === player.symbol && state.gameState.status === 'playing' ? `
+            <span class="turn-indicator">← Your turn</span>
+          ` : ''}
+        </div>
+      `).join('');
+    };
+
+    return `
+      <div class="game-status">
+        <div class="status-message">${getStatusMessage()}</div>
+        <div class="players-info">${getPlayersInfo()}</div>
+      </div>
+    `;
+  }
+
+  // Render Game Board
+  function renderGameBoard() {
+    if (!state.gameState) return '';
+
+    const board = state.gameState.board;
+    const isDisabled = state.gameState.status !== 'playing' || 
+                      state.gameState.currentPlayer !== state.playerSymbol;
+
+    return `
+      <div class="game-board">
+        <div class="board-grid">
+          ${[0, 1, 2, 3, 4, 5, 6, 7, 8].map(index => {
+            const value = board[index];
+            const isClickable = !isDisabled && value === null && 
+                               state.gameState.currentPlayer === state.playerSymbol;
+            
+            return `
+              <button
+                class="cell ${value ? `cell-${value.toLowerCase()}` : ''} ${isClickable ? 'clickable' : ''}"
+                data-index="${index}"
+                ${!isClickable ? 'disabled' : ''}
+              >
+                ${value || ''}
+              </button>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  // Attach Room Setup Listeners
+  function attachRoomSetupListeners() {
+    // Tab switching
+    const tabs = document.querySelectorAll('.tab');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        state.activeTab = tab.dataset.tab;
+        updateUI();
+      });
+    });
+
+    // Create form
+    const createForm = document.getElementById('create-form');
+    if (createForm) {
+      createForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const nameInput = document.getElementById('create-name');
+        const name = nameInput ? nameInput.value.trim() : '';
+        
+        if (!state.isConnected) {
+          state.error = 'Not connected to server. Please wait...';
+          updateUI();
+          return;
+        }
+        if (!name) {
+          state.error = 'Please enter your name';
+          updateUI();
+          return;
+        }
+        
+        state.playerName = name;
+        state.error = '';
+        state.socket.emit('createRoom', { playerName: name });
+      });
+    }
+
+    // Join form
+    const joinForm = document.getElementById('join-form');
+    if (joinForm) {
+      joinForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const nameInput = document.getElementById('join-name');
+        const roomInput = document.getElementById('room-id');
+        const name = nameInput ? nameInput.value.trim() : '';
+        const room = roomInput ? roomInput.value.trim() : '';
+        
+        if (!state.isConnected) {
+          state.error = 'Not connected to server. Please wait...';
+          updateUI();
+          return;
+        }
+        if (!name) {
+          state.error = 'Please enter your name';
+          updateUI();
+          return;
+        }
+        if (!room) {
+          state.error = 'Please enter a room ID';
+          updateUI();
+          return;
+        }
+        
+        state.playerName = name;
+        state.error = '';
+        const normalizedRoomId = room.toUpperCase();
+        state.socket.emit('joinRoom', { roomId: normalizedRoomId, playerName: name });
+      });
+    }
+
+    // Room ID input uppercase
+    const roomInput = document.getElementById('room-id');
+    if (roomInput) {
+      roomInput.addEventListener('input', (e) => {
+        e.target.value = e.target.value.toUpperCase();
+      });
+    }
+  }
+
+  // Attach Game Listeners
+  function attachGameListeners() {
+    // Leave button
+    const leaveBtn = document.getElementById('leave-btn');
+    if (leaveBtn) {
+      leaveBtn.addEventListener('click', () => {
+        state.isInRoom = false;
+        state.roomId = '';
+        state.playerSymbol = null;
+        state.gameState = null;
+        state.error = '';
+        if (state.socket && state.isConnected) {
+          state.socket.emit('leaveRoom', { roomId: state.roomId });
+        }
+        updateUI();
+      });
+    }
+
+    // Reset button
+    const resetBtn = document.getElementById('reset-btn');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        if (state.isConnected) {
+          state.socket.emit('resetGame', { roomId: state.roomId });
+        }
+      });
+    }
+
+    // Game board cells
+    const cells = document.querySelectorAll('.cell');
+    cells.forEach(cell => {
+      cell.addEventListener('click', () => {
+        const index = parseInt(cell.dataset.index);
+        if (state.gameState && 
+            state.gameState.currentPlayer === state.playerSymbol && 
+            state.isConnected) {
+          state.socket.emit('makeMove', { roomId: state.roomId, cellIndex: index });
+        }
+      });
+    });
+  }
+
+  // Initialize app
+  function init() {
+    initSocket();
+    updateUI();
+  }
+
+  // Start when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+  </script>
+</body>
+</html>
