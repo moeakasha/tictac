@@ -16,8 +16,11 @@ function App() {
   const socketRef = useRef(null);
 
   useEffect(() => {
+    // Get socket URL from environment variable or use current origin
+    const socketUrl = process.env.REACT_APP_SOCKET_URL || window.location.origin;
+    
     // Initialize socket connection
-    socketRef.current = io('http://localhost:5000', {
+    socketRef.current = io(socketUrl, {
       reconnection: true,
       reconnectionDelay: 1000,
       reconnectionAttempts: 5
