@@ -4,14 +4,16 @@ FROM node:18-alpine AS client-builder
 
 WORKDIR /app/client
 
-# Copy client package files
-COPY client/package*.json ./
+# Copy only package.json first to avoid lock file sync issues
+COPY client/package.json ./
 
-# Install client dependencies
-RUN npm ci
+# Install client dependencies (this will generate/update package-lock.json)
+RUN npm install
 
-# Copy client source code
+# Copy the rest of client files (including package-lock.json if it exists)
 COPY client/ ./
+
+# Note: client files are already copied above
 
 # Build React app for production
 # Note: REACT_APP_SOCKET_URL will be set at runtime, so we build without it
